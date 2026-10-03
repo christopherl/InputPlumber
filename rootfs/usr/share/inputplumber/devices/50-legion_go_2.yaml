@@ -80,6 +80,15 @@ source_devices:
       vendor_id: 0x17ef
       product_id: 0x61eb
       interface_num: 2
+    events:
+      # The internal IIO IMU is authoritative; avoid mixing controller IMUs.
+      exclude:
+        - "Gyroscope:Center"
+        - "Accelerometer:Center"
+        - "Gyroscope:Left"
+        - "Gyroscope:Right"
+        - "Accelerometer:Left"
+        - "Accelerometer:Right"
 
   ## DInput - Attached
   - group: gamepad # Dinput report
@@ -88,12 +97,30 @@ source_devices:
       vendor_id: 0x17ef
       product_id: 0x61ec
       interface_num: 0
+    events:
+      # The internal IIO IMU is authoritative; avoid mixing controller IMUs.
+      exclude:
+        - "Gyroscope:Center"
+        - "Accelerometer:Center"
+        - "Gyroscope:Left"
+        - "Gyroscope:Right"
+        - "Accelerometer:Left"
+        - "Accelerometer:Right"
   - group: gamepad # XInput report 40Hz
     unique: false
     hidraw:
       vendor_id: 0x17ef
       product_id: 0x61ec
       interface_num: 2
+    events:
+      # The internal IIO IMU is authoritative; avoid mixing controller IMUs.
+      exclude:
+        - "Gyroscope:Center"
+        - "Accelerometer:Center"
+        - "Gyroscope:Left"
+        - "Gyroscope:Right"
+        - "Accelerometer:Left"
+        - "Accelerometer:Right"
 
   ## DInput - Detached
   - group: gamepad
@@ -102,6 +129,15 @@ source_devices:
       vendor_id: 0x17ef
       product_id: 0x61ed
       interface_num: 2
+    events:
+      # The internal IIO IMU is authoritative; avoid mixing controller IMUs.
+      exclude:
+        - "Gyroscope:Center"
+        - "Accelerometer:Center"
+        - "Gyroscope:Left"
+        - "Gyroscope:Right"
+        - "Accelerometer:Left"
+        - "Accelerometer:Right"
 
   ## FPS Mode
   - group: gamepad
@@ -110,6 +146,15 @@ source_devices:
       vendor_id: 0x17ef
       product_id: 0x61ee
       interface_num: 2
+    events:
+      # The internal IIO IMU is authoritative; avoid mixing controller IMUs.
+      exclude:
+        - "Gyroscope:Center"
+        - "Accelerometer:Center"
+        - "Gyroscope:Left"
+        - "Gyroscope:Right"
+        - "Accelerometer:Left"
+        - "Accelerometer:Right"
 
   ## Touchpad
   ## XInput - Connected
@@ -144,15 +189,24 @@ source_devices:
       product_id: 0x61ee
       interface_num: 1
 
-  # IMU
+  # Active body IMUs also keep the CompositeDevice alive across controller
+  # re-enumeration on resume (upstream 88c547a). Do not set blocked: true.
   - group: imu
-    blocked: true
     iio:
       name: gyro_3d
+      allow_internal_imu: true
+      mount_matrix:
+        x: [1, 0, 0]
+        y: [0, -1, 0]
+        z: [0, 0, 1]
   - group: imu
-    blocked: true
     iio:
       name: accel_3d
+      allow_internal_imu: true
+      mount_matrix:
+        x: [1, 0, 0]
+        y: [0, -1, 0]
+        z: [0, 0, 1]
 # Optional configuration for the composite device
 options:
   # If true, InputPlumber will automatically try to manage the input device. If
@@ -162,7 +216,6 @@ options:
 
 # The target input device(s) to emulate by default
 target_devices:
-  - xbox-elite
+  - deck
   - mouse
   - keyboard
-  - touchpad

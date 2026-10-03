@@ -411,6 +411,10 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "allow_internal_imu": {
+          "description": "Keep accel_gyro_3d internal IMU events even with hid_lenovo_go loaded. Defaults to false.",
+          "type": "boolean"
+        },
         "id": {
           "description": "IIO handler for the source device in /sys/bus/iio/devices/*",
           "type": "string"

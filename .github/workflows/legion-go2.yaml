@@ -1,0 +1,18 @@
+name: Legion Go 2 Linux build
+on:
+  push:
+    branches: [legion-go2-internal-gyro]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  linux-x86_64:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - run: tools/legion-go2/build.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: inputplumber-legion-go2-linux-x86_64
+          path: dist/inputplumber-legion-go2-linux-x86_64.tar.gz
+          if-no-files-found: error

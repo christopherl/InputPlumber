@@ -20,6 +20,7 @@ const GYRO_SCALE_FACTOR: f64 = 916.7324722093172; // (180/Ï€) / 0.0625 (rad/s â†
 
 pub struct AccelGyro3dImu {
     driver: Driver,
+    allow_internal_imu: bool,
 }
 
 impl AccelGyro3dImu {
@@ -46,13 +47,20 @@ impl AccelGyro3dImu {
             None
         };
 
+        let allow_internal_imu = config
+            .as_ref()
+            .and_then(|c| c.allow_internal_imu)
+            .unwrap_or(false);
         let sample_rate = config.as_ref().and_then(|c| c.sample_rate);
 
         let id = device_info.sysname();
         let name = device_info.name();
         let driver = Driver::new(id, name, mount_matrix, sample_rate)?;
 
-        Ok(Self { driver })
+        Ok(Self {
+            driver,
+            allow_internal_imu,
+        })
     }
 }
 
@@ -75,6 +83,11 @@ impl SourceInputDevice for AccelGyro3dImu {
     }
 
     fn get_default_event_filter(&self) -> Result<HashSet<Capability>, InputError> {
+        // Go 2 explicitly selects the body IMU instead of controller IMUs.
+        // Preserve the default filter for all other devices.
+        if self.allow_internal_imu {
+            return Ok(HashSet::new());
+        }
         let filtered_events = self.driver.get_default_event_filter();
         let filtered_events = match filtered_events {
             Ok(events) => events,
@@ -132,3 +145,47 @@ pub const CAPABILITIES: &[Capability] = &[
     Capability::Accelerometer(Source::Center),
     Capability::Gyroscope(Source::Center),
 ];
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::drivers::iio_imu::event::{AxisData, Event};
+
+    #[test]
+    fn legion_go2_gyro_units_and_axis_order() {
+        let event = translate_event(Event::Gyro(AxisData {
+            roll: std::f64::consts::PI / 180.0,
+            pitch: -std::f64::consts::PI / 180.0,
+            yaw: 0.0,
+        }));
+        assert_eq!(event.as_capability(), Capability::Gyroscope(Source::Center));
+        let InputValue::Vector3 { x, y, z } = event.get_value() else {
+            panic!("expected vector")
+        };
+        assert!((x.unwrap() - 16.0).abs() < 1e-9);
+        assert!((y.unwrap() + 16.0).abs() < 1e-9);
+        assert_eq!(z, Some(0.0));
+    }
+
+    #[test]
+    fn legion_go2_accel_gravity_units() {
+        let event = translate_event(Event::Accelerometer(AxisData {
+            roll: 0.0,
+            pitch: 0.0,
+            yaw: 9.8,
+        }));
+        let InputValue::Vector3 { z, .. } = event.get_value() else {
+            panic!("expected vector")
+        };
+        assert!((z.unwrap() - 16000.0).abs() < 1e-9);
+    }
+
+    #[test]
+    fn internal_imu_opt_in_defaults_to_disabled() {
+        let config: config::IIO = serde_yaml::from_str("name: gyro_3d").unwrap();
+        assert!(!config.allow_internal_imu.unwrap_or(false));
+        let config: config::IIO =
+            serde_yaml::from_str("name: gyro_3d\nallow_internal_imu: true").unwrap();
+        assert!(config.allow_internal_imu.unwrap_or(false));
+    }
+}

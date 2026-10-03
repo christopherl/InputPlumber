@@ -396,6 +396,10 @@ pub struct IIO {
     pub id: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Keep internal accel_gyro_3d events when hid_lenovo_go is loaded.
+    /// Opt in only when the internal IMU replaces controller IMU events.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub allow_internal_imu: Option<bool>,
     /// Desired sampling rate in Hz.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sample_rate: Option<f64>,
