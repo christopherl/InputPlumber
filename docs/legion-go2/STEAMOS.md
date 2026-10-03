@@ -28,6 +28,8 @@ may take precedence; inspect `/etc/inputplumber/devices.d` before proceeding.
 Run from the extracted `legion-go2` directory:
 
 ```sh
+(
+set -eu
 # Must all be absent before creating the trial:
 test ! -e /var/lib/inputplumber-go2-trial
 test ! -e /etc/inputplumber/devices.d/49-legion_go_2_gyro_trial.yaml
@@ -47,6 +49,7 @@ sudo systemctl daemon-reload
 sudo systemctl restart inputplumber
 systemctl status inputplumber --no-pager
 journalctl -u inputplumber -b -n 100 --no-pager
+)
 ```
 
 The 49 filename precedes the stock 50 profile. The stock profile remains on
