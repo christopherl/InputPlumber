@@ -54,7 +54,9 @@ From the repository root, run `tools/legion-go2/build.sh` with Docker running.
 The same command works on macOS using linux/amd64 emulation and Linux x86_64.
 It validates the YAML/schema/routing, checks modified source formatting, runs
 all Rust tests and builds `--locked --release --target x86_64-unknown-linux-gnu`.
-Output: `dist/inputplumber-legion-go2-linux-x86_64.tar.gz`.
+Output: `dist/inputplumber-legion-go2-linux-x86_64.tar.gz` and its SHA-256
+checksum. A tag matching `v*-legion-go2-gyro.*` publishes both files as an
+experimental GitHub prerelease.
 
 Compiler/base image digest, Cargo.lock and workflow actions are pinned. Debian
 APT packages use the current Bookworm repositories: this is a reproducible
@@ -62,6 +64,7 @@ build procedure, not a claim of byte-for-byte deterministic output. Review
 BUILD_LINKS.txt for runtime libraries; SteamOS must provide compatible libiio,
 libudev and other linked libraries. Never install Debian libraries onto SteamOS.
 
-The `Legion Go 2 Linux build` Actions workflow only builds and stores a test
-artifact. It publishes no release. Fork workflows may need to be enabled on
-GitHub's Actions page. No device installation is performed by this project.
+The `Legion Go 2 Linux build` Actions workflow stores a test artifact on branch
+pushes and publishes an experimental prerelease for matching tags. Fork
+workflows may need to be enabled on GitHub's Actions page. No device
+installation is performed by this project.

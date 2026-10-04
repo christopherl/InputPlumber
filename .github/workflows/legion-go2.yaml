@@ -2,9 +2,10 @@ name: Legion Go 2 Linux build
 on:
   push:
     branches: [legion-go2-internal-gyro]
+    tags: ["v*-legion-go2-gyro.*"]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   linux-x86_64:
     runs-on: ubuntu-24.04
@@ -14,5 +15,26 @@ jobs:
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: inputplumber-legion-go2-linux-x86_64
-          path: dist/inputplumber-legion-go2-linux-x86_64.tar.gz
+          path: |
+            dist/inputplumber-legion-go2-linux-x86_64.tar.gz
+            dist/inputplumber-legion-go2-linux-x86_64.tar.gz.sha256
           if-no-files-found: error
+      - name: Publish experimental GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            dist/inputplumber-legion-go2-linux-x86_64.tar.gz \
+            dist/inputplumber-legion-go2-linux-x86_64.tar.gz.sha256 \
+            --verify-tag \
+            --prerelease \
+            --title "InputPlumber $GITHUB_REF_NAME (experimental)" \
+            --notes-file - <<'NOTES'
+          Experimental InputPlumber build for the Lenovo Legion Go 2 internal
+          gyroscope and accelerometer on SteamOS. This build uses the current
+          fork state plus the Legion Go 2 IIO routing changes.
+
+          Read `STEAMOS.md`, `PORT.md`, and `HARDWARE-TEST.md` in the archive
+          before installing. Hardware behavior remains experimental.
+          NOTES
