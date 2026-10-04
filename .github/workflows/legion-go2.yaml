@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: legion-go2-${{ github.sha }}
+  cancel-in-progress: true
 jobs:
   linux-x86_64:
     runs-on: ubuntu-24.04
