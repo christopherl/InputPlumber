@@ -44,7 +44,7 @@
     If you are using Debian or any of its derivatives, you can install
     InputPlumber using the pre-built deb package.
 
-    To install the package, first visit the [release page](https://github.com/ShadowBlip/InputPlumber/releases) and download
+    To install the package, first visit the [release page](https://github.com/christopherl/InputPlumber/releases) and download
     the `.deb` package for your architecture.
 
     Then use `dpkg` to install the package:
@@ -88,7 +88,7 @@
     - `libiio`
     - `rust`
     
-    To install the package, first visit the [release page](https://github.com/ShadowBlip/InputPlumber/releases) and download
+    To install the package, first visit the [release page](https://github.com/christopherl/InputPlumber/releases) and download
     the `.tar.gz` package for your architecture.
 
     Once you have ensured your system dependencies are installed, you 
